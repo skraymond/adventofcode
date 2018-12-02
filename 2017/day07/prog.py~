@@ -1,0 +1,60 @@
+import sys
+import pdb
+import argparse
+import re
+
+
+def main_two(args):
+    pass
+
+
+class program(object):
+    def __init__(self, string):
+        self.name = string.split()[0].strip()
+        self.weight = int(re.split('[()]', string)[1])
+        self.parent = None
+        try:
+            self.kids_names = [s.strip() for s in string.split('->')[1].split(',')]
+            self.kids = []
+        except:
+            self.kids_names = []
+            self.kids = None
+        
+    def __str__(self):
+        return "%s (%d) -> %s <- %s" % (self.name, self.weight,
+                                        str(self.kids_names),
+                                        str(self.parent))
+
+
+def main_one(args):
+    with open(args.filename) as file_open:
+        data = file_open.readlines()
+
+    dic = {i.split()[0].strip(): program(i) for i in data}
+    for key in dic:
+        cur = dic[key.strip()]
+        if cur.kids is None:
+            continue
+        for name in cur.kids_names:
+            dic[name].parent = cur
+            cur.kids.append(dic[name])
+
+    for key in dic:
+        cur = dic[key]
+        if cur.parent is None:
+            print str(cur)
+            
+    for key in dic:
+        cur = dic[key]
+        if cur.kids is not None:
+            if len(cur.kids) != 3:
+                print len(cur.kids)
+
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('filename')
+parser.add_argument('-s', '--second', required=False, action='store_true')
+args = parser.parse_args()
+
+main_one(args)
